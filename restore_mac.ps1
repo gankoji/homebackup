@@ -4,7 +4,8 @@ $saname = Get-AzKeyVaultSecret -VaultName 'hdvkv' -Name 'resticsaname' -AsPlainT
 $sakey = Get-AzKeyVaultSecret -VaultName 'hdvkv' -Name 'resticsakey' -AsPlainText
 $bupw = Get-AzKeyVaultSecret -VaultName 'hdvkv' -Name 'resticbupw' -AsPlainText
 
-$PWFILE='D:/PersonalWorkspace/homebackups/pw.txt'
+$PWFILE='/Users/jbailey/PersonalWorkspace/homebackup/pw.txt'
+$RESTIC='/opt/homebrew/bin/restic'
 
 if (Test-Path -Path $PWFILE -PathType Leaf) {
     Remove-Item $PWFILE
@@ -16,8 +17,10 @@ $bupw | Out-File $PWFILE
 [Environment]::SetEnvironmentVariable("AZURE_ACCOUNT_NAME", $saname)
 [Environment]::SetEnvironmentVariable("AZURE_ACCOUNT_KEY", $sakey)
 
-$dirs=@("D:/PersonalWorkspace", "E:/RaidData", "E:/MiscData", "C:/Users/asaxp/Documents", "C:/Users/asaxp/Downloads")
+$dirs=@("/Users/jbailey/PersonalWorkspace", "/Users/jbailey/Documents")
 
 $dirs | ForEach-Object {
-    ./restic.exe -r azure:backups:/ --verbose restore latest --target $PSItem --path $PSItem -p $PWFILE
+    $argstr = ' -r azure:backups:/ --verbose restore latest --target $PSItem --path $PSItem -p $PWFILE'
+    $cmdstr = $RESTIC + $argstr
+    Invoke-Expression $cmdstr
 }
